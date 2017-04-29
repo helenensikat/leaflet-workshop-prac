@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>My Web Map</title>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.css" />
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js"></script>
+    <style type="text/css">
+        body { padding: 0; margin: 0; }
+html, body, #map-canvas { height: 100%; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map-canvas"></div>
+    <script type="application/javascript">
+    
+    $(document).ready(function () { // $ is jquery
+    	
+    	var map = L.map( 'map-canvas', { center: [-31.95, 115.86], zoom: 11 } );
+    	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        	attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    	}).addTo(map);
+    	
+    	$.getJSON("walibraryaddresses.geojson", function(geojson) {
+        	
+    	var libraryMarker = {
+        	radius: 8,
+        	fillColor: "#7b9222", // FBS Green.
+        	color: "#fff",
+        	weight: 1,
+        	opacity: 1,
+        	fillOpacity: 0.8
+    	};
+    	
+    	var specialLibraryMarker = {
+        	radius: 16,
+        	fillColor: "#ff66cc", // Pink
+        	color: "#fff",
+        	weight: 1,
+        	opacity: 1,
+        	fillOpacity: 0.8
+    	};
+    
+    L.geoJSON(geojson, {  // L is leaflet
+        pointToLayer: function(feature, latlng) { //pointtoLayer is an L variable
+            var style;
+            switch(feature.properties["Street Suburb"]) {
+                case "South Perth":
+                    style = specialLibraryMarker;
+                    break;
+                default:
+                    style = libraryMarker;
+            }
+            
+            return L.circleMarker(latlng, style);
+        },
+        
+        
+        
+        onEachFeature: function(feature, layer) { //onEachFeature is an L variable
+        if (feature.properties) {
+            layer.bindPopup(
+            	feature.properties["Name"]
+            	+
+            	", "
+            	+
+            	feature.properties["Street Suburb"]
+            );
+            
+        }
+    }
+        
+        
+    		}).addTo(map);
+    
+    		L.control.scale().addTo(map);
+    		
+    		
+    	
+		});
+	});
+    </script>
+</body>
+</html>
